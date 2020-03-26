@@ -5,6 +5,7 @@
 
 
 import sys
+import lib
 
 
 if __name__ == '__main__':
@@ -17,10 +18,16 @@ if __name__ == '__main__':
         print('Invalid file name: please pass in a ".in" filename.')
 
     input_file = open(sys.argv[1])
-    contents = input_file.readlines()
 
-    for line in contents:
-        print(line)
+    kb = lib.KnowledgeBase()
+    for line in input_file.readlines():
+        cleaned_line = line.strip().split()
+        # print(cleaned_line)
+        kb.add_clause(lib.Clause(cleaned_line))
+
+    print('Knowledge Base')
+    print(kb)
+
 
 
 
