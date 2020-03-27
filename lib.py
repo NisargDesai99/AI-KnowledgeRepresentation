@@ -9,9 +9,13 @@ class Clause:
 
     def negate(self):
         self.is_negated = True
-        self.var_list = [('~' if var[0] != '~' else '') + var for var in self.var_list]
+        self.var_list = [(var[1] if var[0] == '~' else '~' + var[0]) for var in self.var_list]
         return self.var_list
-        
+    
+
+    def __hash__(self):
+        return ((''.join(self.var_list)))
+
 
     def __str__(self):
         return ''.join([var + (' ^ ' if self.is_negated else ' V ') for var in self.var_list])[:-3]
@@ -31,6 +35,8 @@ class KnowledgeBase:
 
     def add_clause(self, clause):
         if clause not in self.clause_list:
+            print(self)
+            print(clause, ' not in self.clause_list')
             self.clause_list.append(clause)
         for var in clause.var_list:
             self.variables.add((var if var[0] != '~' else var[1]))
@@ -50,13 +56,48 @@ class KnowledgeBase:
 
 
     def resolve(self, clause1, clause2):
-        print('attempting resolution:', clause1, ' || ', clause2)
-        c1_vars = { var for var in clause1.var_list }
-        c2_vars = { var for var in clause2.var_list }
-
-        print('c1_vars:', c1_vars)
-        print('c2_vars:', c2_vars)
+        c1_vars = { var[1] if var[0] == '~' else var : False if var[0] == '~' else True for var in clause1.var_list }
+        c2_vars = { var[1] if var[0] == '~' else var : False if var[0] == '~' else True for var in clause2.var_list }
+        # print('c1_vars:', c1_vars)
+        # print('c2_vars:', c2_vars)
         
+        count = 0
+        if len(clause1.var_list) == len(clause2.var_list):
+            for c1_var in c1_vars:
+                if c1_var in c2_vars and (c1_vars[c1_var] == (not c2_vars[c1_var])):
+                    count += 1
+            if count == len(c1_vars):
+                return ''
+
+        s = {}
+        for var in clause1.var_list:
+            s[var[1] if var[0] == '~' else var] = False if var[0] == '~' else True
+
+        resolvable = False
+        count = 0
+        for var in clause2.var_list:
+            v = var[1] if var[0] == '~' else var
+            b = False if var[0] == '~' else True
+            if v in s and (not b) == s[v]:
+                resolvable = True
+                count += 1
+                del s[v]
+            else:
+                s[var[1] if var[0] == '~' else var] = False if var[0] == '~' else True
+
+        if count > 1:
+            return ''
+
+        clause_str = ''
+        for k,v in s.items():
+            clause_str += ('~' if v == False else '') + k + ' '
+        
+        if resolvable:
+            print('resolved: ', clause_str, ' | ', clause1, ' | ', clause2)
+            return Clause(clause_str.strip().split())
+        else:
+            return ''
+
 
     def prove(self):
         print('running prove()')
@@ -77,22 +118,27 @@ class KnowledgeBase:
         self.add_clauses([literal for literal in self.theorem.negate()])
         print(self)
         
-
         # TODO: figure out a way to find clauses that can be resolved
         print(self.variables)
 
         for i in range(len(self.clause_list)):
             for j in range(i):
-                self.resolve(self.clause_list[i], self.clause_list[j])
-            
+                result = self.resolve(self.clause_list[i], self.clause_list[j])
+                if result != '':
+                    self.add_clause(result)
 
-
+        print(self)
         print('done running prove()')
         return False
 
 
     def __repr__(self):
-        return ''.join([ (clause.__str__() + '\n') for clause in self.clause_list])
+        kb_str = ''
+        counter = 1
+        for clause in self.clause_list:
+            kb_str += str(counter) + '. ' + str(clause) + '\n'
+            counter += 1
+        return kb_str
 
 
 
