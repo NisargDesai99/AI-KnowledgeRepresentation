@@ -23,7 +23,7 @@ if __name__ == '__main__':
     kb = lib.KnowledgeBase()
     for line in contents[:-1]:
         cleaned_line = line.strip().split()
-        kb.add_clause(lib.Clause(cleaned_line))
+        kb.add_clause(clause=lib.Clause(cleaned_line))
 
     # print('Knowledge Base')
     # print(kb)
