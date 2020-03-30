@@ -34,5 +34,6 @@ if __name__ == '__main__':
 
     run_time = t2 - t1
     print(kb)
+    # print(run_time)
 
 

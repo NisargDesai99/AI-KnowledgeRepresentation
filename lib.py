@@ -40,9 +40,7 @@ class Clause:
 
 
     def __hash__(self):
-        # print('hash:', ''.join(sorted(self.var_list)))
         return (''.join(sorted(self.var_list))).__hash__()
-        # return ((''.join(set(self.var_list)).__hash__()))
 
 
     def __eq__(self, other):
@@ -74,7 +72,6 @@ class KnowledgeBase:
         self.clause_list = []
         self.clause_set = set()
         self.theorem:Clause = None
-        # self.variables = set()
         self.contradiction_pair:tuple = None
 
 
@@ -87,9 +84,6 @@ class KnowledgeBase:
         if clause not in self.clause_set:
             self.clause_list.append(clause)
             self.clause_set.add(clause)
-        
-        # for var in clause.var_list:
-        #     self.variables.add((var if var[0] != '~' else var[1:]))
 
 
     def add_clauses(self, clause_list):
